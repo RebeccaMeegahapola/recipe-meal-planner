@@ -1,36 +1,155 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🥑 MealMind - Complete Recipe & Meal Planner Application
 
-## Getting Started
+## 📋 Table of Contents
 
-First, run the development server:
+1. [Project Overview](#-project-overview)
+2. [Features](#-features)
+3. [Tech Stack](#-tech-stack)
+4. [Project Structure](#-project-structure)
+5. [Database Schema](#-database-schema)
+6. [Authentication Flow](#-authentication-flow)
+7. [Avocado Theme](#-avocado-theme)
+8. [Component Documentation](#-component-documentation)
+9. [API Reference](#-api-reference)
+10. [Setup Instructions](#-setup-instructions)
+11. [Environment Variables](#-environment-variables)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📋 Project Overview
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**MealMind** is a full-stack web application that helps users discover recipes, plan weekly meals, generate shopping lists, and track nutrition. Built with modern web technologies, it provides a seamless experience for home cooks to organize their culinary life.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Problem Solved
 
-## Learn More
+| Problem | Solution |
+|---------|----------|
+| Finding recipes across multiple websites | Centralized recipe search from 365,000+ recipes |
+| Forgetting what to cook each week | Visual weekly meal planner with 21 slots |
+| Making multiple trips to the store | Auto-generated grocery lists from meal plans |
+| Not knowing nutritional intake | Nutrition tracking with interactive charts |
+| Losing saved recipes | Personal database with Supabase |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ✨ Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Core Features
+- ✅ **User Authentication** - Sign up, login, logout with Supabase Auth
+- ✅ **Recipe Search** - Search 365,000+ recipes from Spoonacular API
+- ✅ **Save Recipes** - Save favorite recipes to personal database
+- ✅ **Delete Recipes** - Remove unwanted recipes from collection
+- ✅ **Weekly Meal Planner** - Plan 7 days × 3 meals (21 slots)
+- ✅ **Grocery List Generator** - Auto-generate shopping lists from meal plans
+- ✅ **Nutrition Tracker** - Track calories, protein, carbs, fat with charts
+- ✅ **Responsive Design** - Works perfectly on mobile, tablet, and desktop
 
-## Deploy on Vercel
+### Advanced Features
+- 🎨 **Avocado Theme** - Consistent beautiful green theme throughout
+- 📱 **Mobile Menu** - Hamburger menu for mobile devices
+- 🖨️ **Print Support** - Print grocery lists for shopping
+- 💾 **Persistent Checkmarks** - Checked items saved in localStorage
+- 🔄 **Real-time Updates** - Data updates instantly across components
+- 📊 **Data Visualization** - Interactive charts for nutrition tracking
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠️ Tech Stack
+
+### Frontend
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Next.js | 14.x | React framework with App Router |
+| TypeScript | 5.x | Type safety |
+| Tailwind CSS | 3.x | Utility-first styling |
+| Framer Motion | 10.x | Smooth animations |
+| Recharts | 2.x | Data visualization charts |
+| Lucide React | Latest | Beautiful icons |
+| date-fns | 3.x | Date manipulation |
+
+### Backend & Database
+| Technology | Purpose |
+|------------|---------|
+| Supabase | Backend-as-a-Service (PostgreSQL + Auth) |
+| Row Level Security | Data isolation between users |
+| PostgreSQL | Relational database |
+
+### APIs
+| API | Purpose | Limits |
+|-----|---------|--------|
+| Spoonacular API | Recipe search, details, nutrition | 150 points/day (free tier) |
+
+---
+
+## 🗄️ Database Schema
+
+### Table: profiles
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Links to auth.users (Primary Key) |
+| `email` | TEXT | User's email address |
+| `name` | TEXT | Display name |
+| `avatar_url` | TEXT | Profile picture URL |
+| `created_at` | TIMESTAMP | Account creation date |
+| `updated_at` | TIMESTAMP | Last profile update |
+
+### Table: recipes
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Unique recipe ID (Primary Key) |
+| `user_id` | UUID | Owner of the recipe |
+| `api_id` | INTEGER | Original Spoonacular ID |
+| `title` | TEXT | Recipe name |
+| `image` | TEXT | Recipe image URL |
+| `ingredients` | JSONB | Array of ingredients |
+| `instructions` | TEXT[] | Cooking instructions |
+| `ready_in_minutes` | INTEGER | Total cooking time |
+| `servings` | INTEGER | Number of portions |
+| `nutrition` | JSONB | Calories, protein, carbs, fat |
+| `saved_at` | TIMESTAMP | When saved |
+
+### Table: meal_plans
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Unique plan ID |
+| `user_id` | UUID | Owner |
+| `week_start` | DATE | Monday of the week |
+| `meals` | JSONB | 21 meal slots |
+| `created_at` | TIMESTAMP | Creation date |
+| `updated_at` | TIMESTAMP | Last update |
+
+### Table: grocery_lists
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Unique list ID |
+| `user_id` | UUID | Owner |
+| `week_start` | DATE | Week this list is for |
+| `items` | JSONB | Grocery items by category |
+| `checked_items` | JSONB | Track checked-off items |
+
+---
+
+## 🔐 Authentication Flow
+
+### How it Works
+
+1. User enters email/password on Login page
+2. Supabase Auth validates credentials
+3. On success, user session is created
+4. `useSession()` hook provides user data to all components
+5. Middleware protects routes from unauthorized access
+
+### Protected Routes (middleware.ts)
+- `/dashboard`
+- `/recipes`
+- `/planner`
+- `/grocery-list`
+- `/nutrition`
+
+### useSession Hook Usage
+```typescript
+const { user, loading, signOut } = useSession();
+
+if (loading) return <Spinner />;
+if (!user) return <Redirect to="/login" />;
+return <div>Welcome {user.email}</div>;
