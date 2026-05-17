@@ -45,12 +45,6 @@ export default function Dashboard() {
     const router = useRouter()
     const supabase = createClient()
 
-    useEffect(() => {
-        checkUser()
-        loadDashboardData()
-        updateGreeting()
-    }, [])
-
     const updateGreeting = () => {
         const hour = new Date().getHours()
         if (hour < 12) setGreeting('Good Morning')
@@ -108,6 +102,12 @@ export default function Dashboard() {
             }))
         }
     }
+
+    useEffect(() => {
+        checkUser()
+        loadDashboardData()
+        updateGreeting()
+    }, [])
 
     const featuredCuisines = [
         { name: 'Italian',       icon: '🍝', tint: '#FFF3E0' },
