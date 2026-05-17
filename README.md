@@ -153,3 +153,84 @@ const { user, loading, signOut } = useSession();
 if (loading) return <Spinner />;
 if (!user) return <Redirect to="/login" />;
 return <div>Welcome {user.email}</div>;
+
+```
+
+---
+
+## 🧩 Component Documentation
+
+### 🥗 RecipeCard Component
+
+Displays a recipe with image, title, rating, and ingredients count.
+
+#### Props
+
+- `recipe` (required) — Recipe data object
+- `onDelete` (optional) — Delete callback function
+- `showDelete` (optional) — Show delete button
+
+#### Features
+
+- Displays recipe image, title, rating, and ingredient count
+- Optional delete functionality for saved recipes
+- Responsive card layout
+
+---
+
+### 🔍 RecipeSearch Component
+
+Searches Spoonacular API for recipes.
+
+#### Features
+
+- Search by keyword
+- Fetch recipes from Spoonacular API
+- Display results in a responsive grid
+- Click recipe to fetch full details
+- Save recipe to database
+
+---
+
+### 📅 MealPlanner Component
+
+Weekly meal planning interface.
+
+#### Features
+
+- 7 days × 3 meals grid (21 slots)
+- Add meals to planner
+- Remove meals from planner
+- Save weekly plan to database
+- Recipe picker modal for selection
+
+---
+
+### 🛒 GroceryList Component
+
+Generates a shopping list from the meal plan.
+
+#### Features
+
+- Auto-extract ingredients from planned meals
+- Categorize items (Produce, Dairy, etc.)
+- Check-off tracking with localStorage
+- Print-friendly grocery list
+
+---
+
+### 📊 NutritionTracker Component
+
+Displays nutrition data using charts.
+
+#### Features
+
+- Daily calorie bar chart
+- Macro distribution pie chart
+- Weekly trends line chart
+- Updates dynamically based on meal plan
+
+---
+
+
+
