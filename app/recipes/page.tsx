@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'  // ✅ Fix: Import useRouter correctly
 import RecipeSearch from '@/components/RecipeSearch'
 import RecipeCard from '@/components/RecipeCard'
 import { BookOpen, Search as SearchIcon, Heart, ChefHat, Sparkles } from 'lucide-react'
@@ -11,50 +12,48 @@ import { theme } from '@/lib/theme'
 const colors = theme.colors
 
 interface Recipe {
-    id: string                    // Unique ID in database
-    user_id: string               // Owner of the recipe
-    title: string                 // Recipe name
-    image?: string                // Optional image URL
-    ingredients?: string[] | { name: string }[]  // Ingredient list
-    instructions?: string[]       // Cooking steps
-    ready_in_minutes?: number     // Prep + cook time
-    servings?: number             // Number of portions
-    nutrition?: {                 // Nutritional data
+    id: string
+    user_id: string
+    title: string
+    image?: string
+    ingredients?: string[] | { name: string }[]
+    instructions?: string[]
+    ready_in_minutes?: number
+    servings?: number
+    nutrition?: {
         calories: number
         protein: number
         carbs: number
         fat: number
     }
-    saved_at?: string             // When recipe was saved
-    api_id?: number               // Original Spoonacular ID
+    saved_at?: string
+    api_id?: number
 }
 
 export default function RecipesPage() {
-    const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([])  // User's saved recipes
-    const [activeTab, setActiveTab] = useState<'search' | 'saved'>('search')  // Current tab
-    const [loading, setLoading] = useState(true)  // Loading state
-    const supabase = createClient()  // Database client
+    const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([])
+    const [activeTab, setActiveTab] = useState<'search' | 'saved'>('search')
+    const [loading, setLoading] = useState(true)
+    const supabase = createClient()
+    const router = useRouter()  // ✅ Fixed: useRouter() hook
 
-    const loadSavedRecipes = async () => { // Fetch User's Recipes
+    const loadSavedRecipes = async () => {
         try {
-            // 1. Get current user
-            const {data: {user}} = await supabase.auth.getUser()
+            const { data: { user } } = await supabase.auth.getUser()
             if (!user) {
                 setLoading(false)
                 return
             }
 
-            // 2. Fetch recipes from database
-            const {data, error} = await supabase
+            const { data, error } = await supabase
                 .from('recipes')
                 .select('*')
-                .eq('user_id', user.id)        // Only current user's recipes
-                .order('saved_at', {ascending: false})  // Newest first
+                .eq('user_id', user.id)
+                .order('saved_at', { ascending: false })
 
             if (error) {
                 toast.error('Failed to load recipes')
             } else if (data) {
-                // 3. Remove duplicates (safety measure)
                 const uniqueMap = new Map<string, Recipe>()
                 data.forEach(recipe => {
                     if (!uniqueMap.has(recipe.id)) {
@@ -75,22 +74,29 @@ export default function RecipesPage() {
         loadSavedRecipes()
     }, [])
 
-
     const saveRecipe = async (recipe: any) => {
         try {
-            // 1. Get current user
             const { data: { user } } = await supabase.auth.getUser()
+
+            // ✅ If not logged in, redirect to login page
             if (!user) {
-                toast.error('Please login to save recipes')
+                toast.error('Please login to save recipes', {
+                    duration: 2000,
+                    icon: '🔒',
+                })
+                // Redirect to login with return URL
+                setTimeout(() => {
+                    router.push('/login?redirect=/recipes')
+                }, 1500)
                 return
             }
 
-            // 2. Check if already saved (prevent duplicates)
+            // Check if recipe already exists
             const { data: existing } = await supabase
                 .from('recipes')
                 .select('id, api_id')
                 .eq('user_id', user.id)
-                .eq('api_id', recipe.api_id)  // Check by Spoonacular ID
+                .eq('api_id', recipe.api_id)
                 .maybeSingle()
 
             if (existing) {
@@ -98,18 +104,24 @@ export default function RecipesPage() {
                 return
             }
 
-            // 3. Insert new recipe
             const { error } = await supabase
                 .from('recipes')
                 .insert([{ ...recipe, user_id: user.id }])
 
             if (error) {
+                console.error('Save error:', error)
                 toast.error('Failed to save recipe')
             } else {
-                toast.success('Recipe saved!')
-                await loadSavedRecipes()  // Refresh the list
+                toast.success('Recipe saved to your collection! 🎉')
+                await loadSavedRecipes()
+                // If user was on search tab, stay there; if on saved tab, it will update
+                if (activeTab === 'saved') {
+                    // Already on saved tab, just refresh
+                    await loadSavedRecipes()
+                }
             }
         } catch (error) {
+            console.error('Error:', error)
             toast.error('Failed to save recipe')
         }
     }
@@ -119,13 +131,13 @@ export default function RecipesPage() {
             const { error } = await supabase
                 .from('recipes')
                 .delete()
-                .eq('id', id)  // Delete by database ID
+                .eq('id', id)
 
             if (error) {
                 toast.error('Failed to delete recipe')
             } else {
                 toast.success('Recipe deleted')
-                await loadSavedRecipes()  // Refresh the list
+                await loadSavedRecipes()
             }
         } catch (error) {
             toast.error('Failed to delete recipe')
