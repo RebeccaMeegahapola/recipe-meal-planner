@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
-import { Star, Check } from 'lucide-react'
 import { theme } from '@/lib/theme'
 import Hero from '@/components/Hero'
 
