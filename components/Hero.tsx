@@ -62,7 +62,7 @@ export default function Hero({ user }: HeroProps) {
     const recipe = featured[active]
 
     return (
-        <section className="relative min-h-screen flex flex-col overflow-hidden bg-[#F7F3EE]">
+        <section className="relative flex flex-col overflow-hidden bg-[#F7F3EE]">
 
             {/* ── Top thin banner ─────────────────────────────── */}
             <motion.div
@@ -77,15 +77,228 @@ export default function Hero({ user }: HeroProps) {
                 <span className="w-1 h-1 rounded-full bg-[#9FCC6B] inline-block" />
             </motion.div>
 
-            {/* ── Main layout ─────────────────────────────────── */}
-            <div className="flex-1 flex relative z-10 w-full">
+            {/* ══════════════════════════════════════════════════
+                MOBILE LAYOUT  (< lg) — two stacked rows
+            ══════════════════════════════════════════════════ */}
+            <div className="lg:hidden flex flex-col">
+
+                {/* ROW 1 — Heading + copy + CTAs */}
+                <motion.div
+                    style={{ y: yText }}
+                    className="px-5 pt-10 pb-8"
+                >
+                    <motion.p
+                        initial={{ opacity: 0, x: -16 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="text-xs font-semibold tracking-[0.18em] uppercase mb-5"
+                        style={{ color: C.accent }}
+                    >
+                        Meal Planning · Nutrition · Recipes
+                    </motion.p>
+
+                    <motion.h1
+                        initial={{ opacity: 0, y: 28 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.65, delay: 0.18 }}
+                        className="text-[2.4rem] sm:text-5xl leading-[1.06] tracking-tight"
+                        style={{ fontFamily: theme.fontHeading, color: C.accentDark }}
+                    >
+                        Good food
+                        <br />
+                        <span className="italic font-light" style={{ color: C.accent }}>
+                            starts here.
+                        </span>
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.45 }}
+                        className="text-sm sm:text-base leading-relaxed mt-4"
+                        style={{ color: C.textMuted, fontWeight: 400 }}
+                    >
+                        Discover recipes you'll actually make, build your weekly plan,
+                        and let the grocery list write itself.
+                    </motion.p>
+
+                    {/* CTAs */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.56 }}
+                        className="flex flex-wrap items-center gap-3 mt-7"
+                    >
+                        {user ? (
+                            <Link href="/dashboard">
+                                <button
+                                    className="group flex items-center gap-2.5 px-6 py-3 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                                    style={{
+                                        background: C.accentDark,
+                                        color: '#F4F8EE',
+                                        boxShadow: `0 6px 24px ${C.accentDark}30`,
+                                    }}
+                                >
+                                    Open Dashboard
+                                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                                </button>
+                            </Link>
+                        ) : (
+                            <>
+                                <Link href="/login">
+                                    <button
+                                        className="group flex items-center gap-2.5 px-6 py-3 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                                        style={{
+                                            background: C.accentDark,
+                                            color: '#F4F8EE',
+                                            boxShadow: `0 6px 24px ${C.accentDark}30`,
+                                        }}
+                                    >
+                                        Start for free
+                                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                                    </button>
+                                </Link>
+                                <Link href="/recipes">
+                                    <button
+                                        className="flex items-center gap-1.5 px-5 py-3 rounded-full text-sm font-medium transition-all hover:bg-black/5 active:scale-[0.98]"
+                                        style={{ color: C.accentDark, border: `1.5px solid ${C.accentDark}30` }}
+                                    >
+                                        Browse recipes
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                </Link>
+                            </>
+                        )}
+                    </motion.div>
+
+                    {/* Stats row */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.7 }}
+                        className="flex items-center gap-7 mt-8"
+                    >
+                        {[
+                            { value: '365K+', label: 'Recipes' },
+                            { value: '50K+', label: 'Active cooks' },
+                            { value: '4.9', label: 'Rating' },
+                        ].map(stat => (
+                            <div key={stat.label}>
+                                <div className="text-lg font-bold" style={{ color: C.accentDark, fontFamily: theme.fontHeading }}>
+                                    {stat.value}
+                                </div>
+                                <div className="text-xs mt-0.5" style={{ color: C.textMuted }}>
+                                    {stat.label}
+                                </div>
+                            </div>
+                        ))}
+                    </motion.div>
+                </motion.div>
+
+                {/* ROW 2 — Image slider */}
+                <motion.div
+                    style={{ y: yImg, height: '320px' }}
+                    className="relative mx-4 mb-8 rounded-3xl overflow-hidden"
+                >
+                    {/* Slides */}
+                    <AnimatePresence mode="wait">
+                        {featured.map((item, i) => (
+                            <motion.img
+                                key={item.img}
+                                src={item.img}
+                                alt={item.name}
+                                initial={{ opacity: 0, filter: 'blur(12px)' }}
+                                animate={{
+                                    opacity: i === active ? 1 : 0,
+                                    filter: i === active ? 'blur(0px)' : 'blur(12px)',
+                                }}
+                                exit={{ opacity: 0, filter: 'blur(12px)' }}
+                                transition={{ duration: 0.8, ease: 'easeInOut' }}
+                                className="absolute inset-0 w-full h-full object-cover"
+                            />
+                        ))}
+                    </AnimatePresence>
+
+                    {/* Bottom gradient */}
+                    <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                            background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 50%)',
+                        }}
+                    />
+
+                    {/* Recipe info card — bottom-left */}
+                    <div className="absolute bottom-4 left-4 right-14">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={recipe.name}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -8 }}
+                                transition={{ duration: 0.4 }}
+                                className="rounded-2xl px-4 py-3 inline-block"
+                                style={{
+                                    background: 'rgba(255,255,255,0.92)',
+                                    backdropFilter: 'blur(14px)',
+                                    border: '1px solid rgba(255,255,255,0.95)',
+                                    boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                                }}
+                            >
+                                <span
+                                    className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold mb-1.5"
+                                    style={{ background: `${C.accent}18`, color: C.accent }}
+                                >
+                                    {recipe.tag}
+                                </span>
+                                <p className="font-semibold text-sm" style={{ color: C.accentDark, fontFamily: theme.fontHeading }}>
+                                    {recipe.name}
+                                </p>
+                                <div className="flex items-center gap-3 mt-1.5">
+                                    <span className="flex items-center gap-1 text-xs" style={{ color: C.textMuted }}>
+                                        <Clock className="w-3 h-3" />
+                                        {recipe.time}
+                                    </span>
+                                    <span className="flex items-center gap-1 text-xs" style={{ color: C.textMuted }}>
+                                        <Flame className="w-3 h-3" />
+                                        {recipe.cal} kcal
+                                    </span>
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Dot nav — bottom-right */}
+                    <div className="absolute bottom-5 right-4 flex flex-col gap-2.5">
+                        {featured.map((_, i) => (
+                            <motion.button
+                                key={i}
+                                onClick={() => handleDotClick(i)}
+                                aria-label={`Show ${featured[i].name}`}
+                                className="rounded-full transition-all duration-300 focus:outline-none"
+                                animate={{
+                                    width: i === active ? 8 : 6,
+                                    height: i === active ? 22 : 6,
+                                }}
+                                style={{
+                                    background: i === active ? '#fff' : 'rgba(255,255,255,0.5)',
+                                    boxShadow: i === active ? '0 4px 16px rgba(0,0,0,0.2)' : 'none',
+                                }}
+                            />
+                        ))}
+                    </div>
+                </motion.div>
+            </div>
+
+            {/* ══════════════════════════════════════════════════
+                DESKTOP LAYOUT  (>= lg) — original side-by-side
+            ══════════════════════════════════════════════════ */}
+            <div className="hidden lg:flex flex-1 relative min-h-screen w-full">
 
                 {/* LEFT COLUMN — Typography */}
                 <motion.div
                     style={{ y: yText }}
                     className="flex flex-col justify-center container mx-auto px-4 md:px-6 max-w-7xl w-full py-16 lg:py-0"
                 >
-                    {/* Category label */}
                     <motion.p
                         initial={{ opacity: 0, x: -16 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -96,7 +309,6 @@ export default function Hero({ user }: HeroProps) {
                         Meal Planning · Nutrition · Recipes
                     </motion.p>
 
-                    {/* Headline — editorial serif mixed with sans */}
                     <motion.h1
                         initial={{ opacity: 0, y: 28 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -111,7 +323,6 @@ export default function Hero({ user }: HeroProps) {
                         </span>
                     </motion.h1>
 
-                    {/* Body copy — short, human */}
                     <motion.p
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -123,7 +334,6 @@ export default function Hero({ user }: HeroProps) {
                         and let the grocery list write itself.
                     </motion.p>
 
-                    {/* CTAs */}
                     <motion.div
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -172,7 +382,6 @@ export default function Hero({ user }: HeroProps) {
                         )}
                     </motion.div>
 
-                    {/* Stats row */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -199,9 +408,8 @@ export default function Hero({ user }: HeroProps) {
                 {/* RIGHT COLUMN — Full-bleed photo */}
                 <motion.div
                     style={{ y: yImg }}
-                    className="hidden lg:block absolute right-0 top-0 bottom-0 w-[55%] overflow-hidden"
+                    className="absolute right-0 top-0 bottom-0 w-[55%] overflow-hidden"
                 >
-                    {/* Photo container with blur effect */}
                     <div className="relative w-full h-full">
                         <AnimatePresence mode="wait">
                             {featured.map((item, i) => (
@@ -221,7 +429,6 @@ export default function Hero({ user }: HeroProps) {
                             ))}
                         </AnimatePresence>
 
-                        {/* Left-side fade to background */}
                         <div
                             className="absolute inset-0 pointer-events-none"
                             style={{
@@ -229,7 +436,6 @@ export default function Hero({ user }: HeroProps) {
                             }}
                         />
 
-                        {/* Recipe info card — bottom-left overlay */}
                         <div className="absolute bottom-8 left-8">
                             <AnimatePresence mode="wait">
                                 <motion.div
@@ -269,7 +475,6 @@ export default function Hero({ user }: HeroProps) {
                             </AnimatePresence>
                         </div>
 
-                        {/* Dot navigation — right side */}
                         <div className="absolute bottom-12 right-8 flex flex-col gap-3">
                             {featured.map((_, i) => (
                                 <motion.button
@@ -290,46 +495,6 @@ export default function Hero({ user }: HeroProps) {
                         </div>
                     </div>
                 </motion.div>
-
-                {/* Mobile recipe info */}
-                <div className="lg:hidden absolute bottom-8 left-4 right-4 z-20">
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={recipe.name}
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -8 }}
-                            transition={{ duration: 0.4 }}
-                            className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4"
-                            style={{
-                                background: 'rgba(255,255,255,0.92)',
-                                backdropFilter: 'blur(14px)',
-                                border: '1px solid rgba(255,255,255,0.95)',
-                                boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-                            }}
-                        >
-                            <span
-                                className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold mb-1.5"
-                                style={{ background: `${C.accent}18`, color: C.accent }}
-                            >
-                                {recipe.tag}
-                            </span>
-                            <p className="font-semibold text-sm sm:text-base" style={{ color: C.accentDark, fontFamily: theme.fontHeading }}>
-                                {recipe.name}
-                            </p>
-                            <div className="flex items-center gap-3 mt-1.5">
-                                <span className="flex items-center gap-1 text-xs" style={{ color: C.textMuted }}>
-                                    <Clock className="w-3 h-3" />
-                                    {recipe.time}
-                                </span>
-                                <span className="flex items-center gap-1 text-xs" style={{ color: C.textMuted }}>
-                                    <Flame className="w-3 h-3" />
-                                    {recipe.cal} kcal
-                                </span>
-                            </div>
-                        </motion.div>
-                    </AnimatePresence>
-                </div>
             </div>
 
             {/* ── Scrolling ticker ────────────────────────────── */}
