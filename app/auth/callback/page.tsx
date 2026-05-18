@@ -1,34 +1,30 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { theme } from '@/lib/theme'
 
 const colors = theme.colors
 
-export default function AuthCallback() {
-    const [message, setMessage] = useState('Processing...')  // Status message to show user
-    const [isPasswordReset, setIsPasswordReset] = useState(false)  // Which icon to show
-    const router = useRouter()    // For navigation
-    const searchParams = useSearchParams()     // For reading URL parameters
-    const supabase = createClient()   // Supabase connection
+// Move your existing logic into this component
+function CallbackHandler() {
+    const [message, setMessage] = useState('Processing...')
+    const [isPasswordReset, setIsPasswordReset] = useState(false)
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const supabase = createClient()
 
     useEffect(() => {
         const handleCallback = async () => {
-            // Check if this is a password reset callback
             const next = searchParams.get('next')
 
             if (next === '/update-password') {
-                // Password reset flow
                 setIsPasswordReset(true)
                 setMessage('Redirecting to password update...')
-                setTimeout(() => {
-                    router.push('/update-password')
-                }, 1000)
+                setTimeout(() => router.push('/update-password'), 1000)
                 return
             }
 
-            // Handle email confirmation
             const { error } = await supabase.auth.getSession()
 
             if (error) {
@@ -61,11 +57,18 @@ export default function AuthCallback() {
     )
 }
 
-
-
-// 🎯 Purpose of This Page
-// When users click links in emails from Supabase, they get redirected to this page. This page then:
-//
-//Reads the URL to understand what action is needed
-// Redirects users to the correct page in your app
-// Shows loading states while processing
+// Main export - just add Suspense wrapper
+export default function AuthCallback() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center" style={{ background: colors.bg }}>
+                <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 mb-4" style={{ borderColor: colors.accent }} />
+                    <p className="text-sm" style={{ color: colors.textMuted }}>Loading...</p>
+                </div>
+            </div>
+        }>
+            <CallbackHandler />
+        </Suspense>
+    )
+}
