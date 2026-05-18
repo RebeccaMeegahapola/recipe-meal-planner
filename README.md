@@ -51,6 +51,7 @@
 - 💾 **Persistent Checkmarks** - Checked items saved in localStorage
 - 🔄 **Real-time Updates** - Data updates instantly across components
 - 📊 **Data Visualization** - Interactive charts for nutrition tracking
+- 🔐 **Email Rate Limit Fix** - Custom SMTP with Resend (3,000 free emails/month)
 
 ---
 
@@ -73,6 +74,11 @@
 | Supabase | Backend-as-a-Service (PostgreSQL + Auth) |
 | Row Level Security | Data isolation between users |
 | PostgreSQL | Relational database |
+
+### Email Service
+| Service | Purpose | Free Tier |
+|---------|---------|-----------|
+| Resend | SMTP email delivery | 3,000 emails/month |
 
 ### APIs
 | API | Purpose | Limits |
@@ -139,6 +145,16 @@
 4. `useSession()` hook provides user data to all components
 5. Middleware protects routes from unauthorized access
 
+### Authentication Modes
+
+| Mode | Purpose | Features |
+|------|---------|----------|
+| **Login** | Existing users sign in | Email + Password, Forgot password link |
+| **Sign Up** | New users create account | Email + Password, Email confirmation required |
+| **Forgot Password** | Password recovery | Email only, Sends reset link |
+
+---
+
 ### Protected Routes (middleware.ts)
 - `/dashboard`
 - `/recipes`
@@ -149,10 +165,6 @@
 ### useSession Hook Usage
 ```typescript
 const { user, loading, signOut } = useSession();
-
-if (loading) return <Spinner />;
-if (!user) return <Redirect to="/login" />;
-return <div>Welcome {user.email}</div>;
 
 ```
 
