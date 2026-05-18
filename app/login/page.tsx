@@ -1,5 +1,10 @@
 'use client'
-import { useState } from 'react'
+
+// Force dynamic rendering - this page uses useSearchParams() which reads URL parameters
+// Without this, Next.js would try to statically prerender and fail at build time
+export const dynamic = 'force-dynamic'
+
+import { useState, Suspense } from 'react'  // Added Suspense for useSearchParams
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -8,7 +13,8 @@ import { theme } from '@/lib/theme'
 
 const colors = theme.colors
 
-export default function LoginPage() {
+// Component that uses useSearchParams - must be wrapped in Suspense
+function LoginForm() {
     const [email, setEmail] = useState('')              // Email input
     const [password, setPassword] = useState('')        // Password input
     const [loading, setLoading] = useState(false)       // Show spinner during actions
@@ -515,5 +521,21 @@ export default function LoginPage() {
                 </p>
             </motion.div>
         </div>
+    )
+}
+
+// Main export with Suspense boundary - required for useSearchParams
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center" style={{ background: colors.bg }}>
+                <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 mb-4" style={{ borderColor: colors.accent }} />
+                    <p style={{ color: colors.textMuted }}>Loading...</p>
+                </div>
+            </div>
+        }>
+            <LoginForm />
+        </Suspense>
     )
 }
