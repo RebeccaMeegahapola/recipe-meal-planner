@@ -111,21 +111,12 @@ export default function Hero({ user }: HeroProps) {
                         </span>
                     </motion.h1>
 
-                    {/* Divider line */}
-                    <motion.div
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ duration: 0.6, delay: 0.4, ease: 'easeOut' }}
-                        className="origin-left h-px w-16 mt-8 mb-6"
-                        style={{ background: C.accent }}
-                    />
-
                     {/* Body copy — short, human */}
                     <motion.p
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.45 }}
-                        className="text-base sm:text-lg leading-relaxed max-w-sm"
+                        className="text-base sm:text-lg leading-relaxed max-w-sm mt-5"
                         style={{ color: C.textMuted, fontWeight: 400 }}
                     >
                         Discover recipes you'll actually make, build your weekly plan,
@@ -343,7 +334,7 @@ export default function Hero({ user }: HeroProps) {
 
             {/* ── Scrolling ticker ────────────────────────────── */}
             <div
-                className="relative z-20 overflow-hidden py-3 border-t mt-5"
+                className="relative z-20 overflow-hidden py-3 border-t"
                 style={{ borderColor: `${C.accentDark}18`, background: '#F0EBE3' }}
             >
                 <motion.div
