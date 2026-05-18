@@ -98,17 +98,25 @@ export default function LoginForm() {
 
         if (error) {
             setMessage(error.message)
+            setLoading(false)
         } else {
             if (data.user?.identities?.length === 0) {
                 setMessage('User already exists. Please login instead.')
                 setTimeout(() => setMode('login'), 2000)
             } else {
-                setMessage('✨ Check your email for confirmation link!')
+                // ✅ Updated success message with auto-redirect
+                setMessage('✨ Account created successfully! Redirecting to dashboard...')
                 setEmail('')
                 setPassword('')
+
+                // Auto-redirect to dashboard after 1.5 seconds
+                setTimeout(() => {
+                    const redirectTo = searchParams.get('redirect') || '/dashboard'
+                    router.push(redirectTo)
+                }, 1500)
             }
+            setLoading(false)
         }
-        setLoading(false)
     }
 
     const handleForgotPassword = async (e: React.FormEvent) => {
