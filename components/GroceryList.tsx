@@ -1,61 +1,75 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Check, ShoppingBag, Printer, RefreshCw, Clock, ChefHat } from 'lucide-react'
+import { Check, ShoppingBag, Printer, RefreshCw, Clock, ChefHat, Apple, Carrot, Beef, Milk, Package, Leaf, Wine, Utensils, Egg, Fish, Coffee } from 'lucide-react'
 import { theme } from '@/lib/theme'
 
 const colors = theme.colors
 
 interface GroceryItem {
-    id: string           // Unique identifier (ingredient name lowercase)
-    name: string         // Display name (e.g., "tomatoes")
-    category: string     // Category with emoji (e.g., "🥬 Produce")
-    amount?: string      // Optional quantity (e.g., "2", "500g")
+    id: string
+    name: string
+    category: string
+    amount?: string
 }
 
 interface GroceryItemsByCategory {
-    [category: string]: GroceryItem[]  // Example: { "🥬 Produce": [...], "🥩 Meat": [...] }
+    [category: string]: GroceryItem[]
 }
 
 interface MealPlan {
-    [key: string]: any   // Recipe objects keyed by "Monday-breakfast", etc.
+    [key: string]: any
 }
 
 interface Recipe {
     id: string
     title: string
-    ingredients?: string[] | { name: string }[]  // Can be strings or objects
+    ingredients?: string[] | { name: string }[]
     image?: string
     ready_in_minutes?: number
     servings?: number
 }
 
 interface GroceryListProps {
-    mealPlan: MealPlan | null     // Current week's meal plan
-    recipes: Recipe[]             // All saved recipes (to get ingredient details)
-    onSave?: (items: GroceryItemsByCategory) => void  // Optional save callback
+    mealPlan: MealPlan | null
+    recipes: Recipe[]
+    onSave?: (items: GroceryItemsByCategory) => void
+}
+
+// ✅ Clean category icons mapping (no emojis in keys)
+const categoryIcons: { [key: string]: React.ReactNode } = {
+    'Produce': <Apple className="w-4 h-4" />,
+    'Meat & Seafood': <Beef className="w-4 h-4" />,
+    'Dairy & Eggs': <Milk className="w-4 h-4" />,
+    'Pantry': <Package className="w-4 h-4" />,
+    'Canned & Jarred': <Package className="w-4 h-4" />,
+    'Spices': <Leaf className="w-4 h-4" />,
+    'Condiments': <Wine className="w-4 h-4" />,
+    'Fruits': <Apple className="w-4 h-4" />,
+    'Other': <Utensils className="w-4 h-4" />
 }
 
 export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
-    const [groceryItems, setGroceryItems] = useState<GroceryItemsByCategory>({})  // Grouped items
-    const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({})  // Checked status
-    const [usedRecipes, setUsedRecipes] = useState<Recipe[]>([])  // Recipes in meal plan
+    const [groceryItems, setGroceryItems] = useState<GroceryItemsByCategory>({})
+    const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({})
+    const [usedRecipes, setUsedRecipes] = useState<Recipe[]>([])
 
     useEffect(() => {
         if (mealPlan && recipes.length > 0) {
-            generateGroceryList()  // Generate whenever meal plan or recipes change
+            generateGroceryList()
         }
     }, [mealPlan, recipes])
 
+    // ✅ Updated categorizer - returns clean category names (no emojis)
     const categorizeIngredient = (name: string): string => {
         const categories: { [key: string]: string[] } = {
-            '🥬 Produce': ['tomato', 'onion', 'garlic', 'lettuce', 'spinach', 'carrot', 'potato', 'broccoli', 'cauliflower', 'zucchini', 'cucumber', 'pepper', 'mushroom', 'avocado', 'lemon', 'lime', 'herbs', 'basil', 'cilantro', 'parsley'],
-            '🥩 Meat & Seafood': ['chicken', 'beef', 'pork', 'bacon', 'sausage', 'fish', 'salmon', 'shrimp', 'turkey', 'lamb', 'steak', 'ground beef', 'chicken breast', 'thigh'],
-            '🥛 Dairy & Eggs': ['milk', 'cheese', 'butter', 'yogurt', 'cream', 'egg', 'eggs', 'sour cream', 'parmesan', 'mozzarella', 'cheddar'],
-            '🥫 Pantry': ['rice', 'pasta', 'bread', 'flour', 'sugar', 'oil', 'olive oil', 'salt', 'pepper', 'spaghetti', 'noodles', 'quinoa', 'oats', 'cereal'],
-            '🥫 Canned & Jarred': ['bean', 'tomato sauce', 'coconut milk', 'broth', 'sauce', 'can', 'jars', 'pickles', 'olives'],
-            '🌿 Spices': ['cumin', 'paprika', 'oregano', 'basil', 'thyme', 'rosemary', 'garlic powder', 'onion powder', 'cinnamon', 'nutmeg'],
-            '🍷 Condiments': ['soy sauce', 'vinegar', 'mustard', 'ketchup', 'mayonnaise', 'hot sauce', 'worcestershire', 'fish sauce'],
-            '🍎 Fruits': ['apple', 'banana', 'orange', 'strawberry', 'blueberry', 'raspberry', 'grape', 'watermelon', 'pineapple', 'mango']
+            'Produce': ['tomato', 'onion', 'garlic', 'lettuce', 'spinach', 'carrot', 'potato', 'broccoli', 'cauliflower', 'zucchini', 'cucumber', 'pepper', 'mushroom', 'avocado', 'lemon', 'lime', 'herbs', 'basil', 'cilantro', 'parsley'],
+            'Meat & Seafood': ['chicken', 'beef', 'pork', 'bacon', 'sausage', 'fish', 'salmon', 'shrimp', 'turkey', 'lamb', 'steak', 'ground beef', 'chicken breast', 'thigh'],
+            'Dairy & Eggs': ['milk', 'cheese', 'butter', 'yogurt', 'cream', 'egg', 'eggs', 'sour cream', 'parmesan', 'mozzarella', 'cheddar'],
+            'Pantry': ['rice', 'pasta', 'bread', 'flour', 'sugar', 'oil', 'olive oil', 'salt', 'pepper', 'spaghetti', 'noodles', 'quinoa', 'oats', 'cereal'],
+            'Canned & Jarred': ['bean', 'tomato sauce', 'coconut milk', 'broth', 'sauce', 'can', 'jars', 'pickles', 'olives'],
+            'Spices': ['cumin', 'paprika', 'oregano', 'basil', 'thyme', 'rosemary', 'garlic powder', 'onion powder', 'cinnamon', 'nutmeg'],
+            'Condiments': ['soy sauce', 'vinegar', 'mustard', 'ketchup', 'mayonnaise', 'hot sauce', 'worcestershire', 'fish sauce'],
+            'Fruits': ['apple', 'banana', 'orange', 'strawberry', 'blueberry', 'raspberry', 'grape', 'watermelon', 'pineapple', 'mango']
         }
 
         const lowerName = name.toLowerCase()
@@ -64,11 +78,10 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
                 return category
             }
         }
-        return '📦 Other'
+        return 'Other'
     }
 
     const parseIngredientAmount = (ingredient: string): { name: string; amount: string } => {
-        // Regex to find numbers, fractions, and measurements at start of string
         const amountMatch = ingredient.match(/^[\d\/\s\.]+|[\d]+\/\d+|\d+(\.\d+)?/)
         if (amountMatch) {
             const amount = amountMatch[0].trim()
@@ -82,12 +95,10 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
         if (!mealPlan) return
 
         const ingredientsMap: { [key: string]: GroceryItem } = {}
-        const recipesUsedMap = new Map<string, Recipe>() // Use Map to prevent duplicates
+        const recipesUsedMap = new Map<string, Recipe>()
 
-        // Loop through all meals in the meal plan
         Object.values(mealPlan).forEach((recipe) => {
             if (recipe && recipe.id && recipe.ingredients) {
-                // Add to used recipes Map (automatically prevents duplicates by id)
                 if (!recipesUsedMap.has(recipe.id)) {
                     recipesUsedMap.set(recipe.id, recipe)
                 }
@@ -117,11 +128,9 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
             }
         })
 
-        // Convert Map to array for used recipes
         const uniqueUsedRecipes = Array.from(recipesUsedMap.values())
         setUsedRecipes(uniqueUsedRecipes)
 
-        // Group by category
         const grouped: GroceryItemsByCategory = {}
         Object.values(ingredientsMap).forEach((item) => {
             if (!grouped[item.category]) {
@@ -130,14 +139,12 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
             grouped[item.category].push(item)
         })
 
-        // Sort items alphabetically within each category
         Object.keys(grouped).forEach((category) => {
             grouped[category].sort((a, b) => a.name.localeCompare(b.name))
         })
 
         setGroceryItems(grouped)
 
-        // Load checked items from localStorage
         try {
             const savedChecked = localStorage.getItem('grocery_checked')
             if (savedChecked) {
@@ -175,6 +182,11 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
 
     const totalItems = Object.values(groceryItems).reduce((sum, items) => sum + items.length, 0)
     const checkedCount = Object.values(checkedItems).filter(v => v === true).length
+
+    // Get icon for category
+    const getCategoryIcon = (category: string) => {
+        return categoryIcons[category] || <Utensils className="w-4 h-4" />
+    }
 
     return (
         <div className="space-y-6">
@@ -266,6 +278,7 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
                                 <div key={category}>
                                     <h3 className="text-base font-semibold mb-3 pb-2 border-b flex items-center gap-2"
                                         style={{ color: colors.accent, borderBottomColor: colors.border }}>
+                                        {getCategoryIcon(category)}
                                         <span>{category}</span>
                                         <span className="text-xs font-normal" style={{ color: colors.textMuted }}>({items.length})</span>
                                     </h3>
@@ -302,7 +315,7 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
                 </div>
             </div>
 
-            {/* Recipes Used Section - Using unique keys */}
+            {/* Recipes Used Section */}
             {usedRecipes.length > 0 && (
                 <div className="rounded-2xl p-5" style={{ background: colors.bgSecondary, border: `1px solid ${colors.border}` }}>
                     <h3 className="font-semibold mb-3 flex items-center gap-2" style={{ color: colors.text }}>
