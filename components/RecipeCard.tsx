@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Trash2, Clock, Users, Eye, Heart, Star, X } from 'lucide-react'
+import { Trash2, Clock, Users, Eye, Heart, Star, X, ShoppingBasket, BookOpen, Flame, Carrot, Beef, Wheat, Apple } from 'lucide-react'
 import { theme } from '@/lib/theme'
 
 const colors = theme.colors
@@ -12,19 +12,19 @@ interface RecipeCardProps {
 }
 
 export default function RecipeCard({ recipe, onDelete, showDelete = false }: RecipeCardProps) {
-    const [showDetails, setShowDetails] = useState(false) // Modal visibility
+    const [showDetails, setShowDetails] = useState(false)
 
     const openModal = (e: React.MouseEvent) => {
         e.preventDefault()      // Prevent any default behavior
         e.stopPropagation()     // Stop event from bubbling up
-        setShowDetails(true)    // Open modal
+        setShowDetails(true)
     }
 
     const handleDelete = (e: React.MouseEvent, id: string) => {
         e.preventDefault()
         e.stopPropagation()
         if (onDelete) {
-            onDelete(id)  // Call parent's delete function
+            onDelete(id) // Call parent's delete function
         }
     }
 
@@ -160,10 +160,12 @@ export default function RecipeCard({ recipe, onDelete, showDelete = false }: Rec
                                 )}
                             </div>
 
+                            {/* Ingredients Section - Using ShoppingBasket icon */}
                             {recipe.ingredients && recipe.ingredients.length > 0 && (
                                 <div>
                                     <h3 className="font-semibold mb-3 flex items-center gap-2" style={{ color: colors.text }}>
-                                        <span className="text-lg">🛒</span> Ingredients
+                                        <ShoppingBasket className="w-5 h-5" style={{ color: colors.accent }} />
+                                        Ingredients
                                     </h3>
                                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                         {recipe.ingredients.map((ing: any, i: number) => (
@@ -176,10 +178,12 @@ export default function RecipeCard({ recipe, onDelete, showDelete = false }: Rec
                                 </div>
                             )}
 
+                            {/* Instructions Section - Using BookOpen icon */}
                             {recipe.instructions && recipe.instructions.length > 0 && (
                                 <div>
                                     <h3 className="font-semibold mb-3 flex items-center gap-2" style={{ color: colors.text }}>
-                                        <span className="text-lg">📝</span> Instructions
+                                        <BookOpen className="w-5 h-5" style={{ color: colors.accent }} />
+                                        Instructions
                                     </h3>
                                     <ol className="space-y-3">
                                         {recipe.instructions.map((step: string, i: number) => (
@@ -194,36 +198,49 @@ export default function RecipeCard({ recipe, onDelete, showDelete = false }: Rec
                                 </div>
                             )}
 
-                            {/* Add this section after servings and before ingredients */}
+                            {/* Nutrition Section - Using Flame icon for calories */}
                             {recipe.nutrition && (
                                 <div>
                                     <h3 className="font-semibold mb-3 flex items-center gap-2" style={{ color: colors.text }}>
-                                        <span className="text-lg">📊</span> Nutrition Facts
+                                        <Flame className="w-5 h-5" style={{ color: colors.accent }} />
+                                        Nutrition Facts
                                     </h3>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                         <div className="text-center p-3 rounded-lg" style={{ background: colors.bg }}>
-                                            <div className="text-xl font-bold" style={{ color: colors.accent }}>
+                                            <div className="text-xl font-bold mb-1" style={{ color: colors.accent }}>
                                                 {Math.round(recipe.nutrition.calories || 0)}
                                             </div>
-                                            <div className="text-xs" style={{ color: colors.textMuted }}>Calories</div>
+                                            <div className="text-xs flex items-center justify-center gap-1" style={{ color: colors.textMuted }}>
+                                                <Flame className="w-3 h-3" />
+                                                Calories
+                                            </div>
                                         </div>
                                         <div className="text-center p-3 rounded-lg" style={{ background: colors.bg }}>
-                                            <div className="text-xl font-bold" style={{ color: colors.accent }}>
+                                            <div className="text-xl font-bold mb-1" style={{ color: colors.accent }}>
                                                 {Math.round(recipe.nutrition.protein || 0)}g
                                             </div>
-                                            <div className="text-xs" style={{ color: colors.textMuted }}>Protein</div>
+                                            <div className="text-xs flex items-center justify-center gap-1" style={{ color: colors.textMuted }}>
+                                                <Beef className="w-3 h-3" />
+                                                Protein
+                                            </div>
                                         </div>
                                         <div className="text-center p-3 rounded-lg" style={{ background: colors.bg }}>
-                                            <div className="text-xl font-bold" style={{ color: colors.accent }}>
+                                            <div className="text-xl font-bold mb-1" style={{ color: colors.accent }}>
                                                 {Math.round(recipe.nutrition.carbs || 0)}g
                                             </div>
-                                            <div className="text-xs" style={{ color: colors.textMuted }}>Carbs</div>
+                                            <div className="text-xs flex items-center justify-center gap-1" style={{ color: colors.textMuted }}>
+                                                <Wheat className="w-3 h-3" />
+                                                Carbs
+                                            </div>
                                         </div>
                                         <div className="text-center p-3 rounded-lg" style={{ background: colors.bg }}>
-                                            <div className="text-xl font-bold" style={{ color: colors.accent }}>
+                                            <div className="text-xl font-bold mb-1" style={{ color: colors.accent }}>
                                                 {Math.round(recipe.nutrition.fat || 0)}g
                                             </div>
-                                            <div className="text-xs" style={{ color: colors.textMuted }}>Fat</div>
+                                            <div className="text-xs flex items-center justify-center gap-1" style={{ color: colors.textMuted }}>
+                                                <Carrot className="w-3 h-3" />
+                                                Fat
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
