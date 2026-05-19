@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import {
     Calendar,
@@ -13,11 +14,16 @@ import {
     Sparkles,
     Bookmark,
     Leaf,
-    Flame
+    Flame,
+    Pizza,
+    Salad,
+    Fish,
+    Beef,
 } from 'lucide-react'
 import { theme } from '@/lib/theme'
 import RecipeCard from '@/components/RecipeCard'
 import { format, startOfWeek } from "date-fns"
+import icon from '@/public/images/logo.png'
 
 interface Recipe {
     id: string
@@ -166,11 +172,12 @@ export default function Dashboard() {
         updateGreeting()
     }, [])
 
+    // Featured Cuisines with Lucide Icons
     const featuredCuisines = [
-        { name: 'Italian',       icon: '🍝', tint: '#FFF3E0' },
-        { name: 'Asian',         icon: '🍜', tint: '#E8F5E9' },
-        { name: 'Mexican',       icon: '🌮', tint: '#FBE9E7' },
-        { name: 'Mediterranean', icon: '🥗', tint: '#E3F2FD' },
+        { name: 'Italian', icon: Pizza, tint: '#FFF3E0', iconColor: '#C17A3A' },
+        { name: 'Asian', icon: Fish, tint: '#E8F5E9', iconColor: '#5A8A3C' },
+        { name: 'Mexican', icon: Beef, tint: '#FBE9E7', iconColor: '#E05A5A' },
+        { name: 'Mediterranean', icon: Salad, tint: '#E3F2FD', iconColor: '#3A7C6E' },
     ]
 
     const quickStats = [
@@ -240,23 +247,48 @@ export default function Dashboard() {
                         <div>
                             <span
                                 className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-4"
-                                style={{ background: 'rgba(156,191,110,0.22)', color: colors.border, border: '1px solid rgba(156,191,110,0.3)' }}
+                                style={{
+                                    background: 'rgba(156,191,110,0.22)',
+                                    color: colors.border,
+                                    border: '1px solid rgba(156,191,110,0.3)'
+                                }}
                             >
-                                <Leaf className="w-3 h-3" /> {greeting}
+                                <Leaf className="w-3 h-3"/> {greeting}
                             </span>
-                            <h1 style={{ fontFamily: theme.fontHeading, fontWeight: 500, fontSize: 'clamp(24px, 4vw, 42px)', color: colors.textWhite, lineHeight: 1.15, margin: 0 }}>
-                                Welcome back, <em style={{ color: colors.accentLight }}>{username}</em> 🥑
+                            <h1 style={{
+                                fontFamily: theme.fontHeading,
+                                fontWeight: 500,
+                                fontSize: 'clamp(24px, 4vw, 42px)',
+                                color: colors.textWhite,
+                                lineHeight: 1.15,
+                                margin: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                flexWrap: 'wrap'
+                            }}>
+                                Welcome back, <em style={{color: colors.accentLight}}>{username}</em>
+                                <Image
+                                    src={icon}
+                                    alt="Avocado"
+                                    width={32}
+                                    height={32}
+                                    className="object-contain inline-block"
+                                />
                             </h1>
-                            <p className="mt-2 text-sm" style={{ color: colors.textLight, maxWidth: 420 }}>
+                            <p className="mt-2 text-sm" style={{color: colors.textLight, maxWidth: 420}}>
                                 Ready to cook something brilliant? Your collection is growing nicely.
                             </p>
                         </div>
                         <motion.button
-                            whileHover={{ scale: 1.04 }}
-                            whileTap={{ scale: 0.97 }}
+                            whileHover={{scale: 1.04}}
+                            whileTap={{scale: 0.97}}
                             onClick={() => router.push('/recipes')}
                             className="flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold text-sm flex-shrink-0"
-                            style={{ background: colors.accentLight, color: colors.accentDark, boxShadow: '0 6px 20px rgba(0,0,0,0.18)' }}
+                            style={{
+                                background: colors.accentLight,
+                                color: colors.accentDark,
+                                boxShadow: '0 6px 20px rgba(0,0,0,0.18)' }}
                         >
                             <Search className="w-4 h-4" />
                             Explore Recipes
@@ -305,22 +337,25 @@ export default function Dashboard() {
                         </button>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {featuredCuisines.map((cuisine, i) => (
-                            <motion.button
-                                key={cuisine.name}
-                                initial={{ opacity: 0, scale: 0.93 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: i * 0.07 }}
-                                whileHover={{ y: -4 }}
-                                className="relative overflow-hidden rounded-2xl p-5 text-center group"
-                                style={{ background: cuisine.tint, border: `1px solid ${colors.border}` }}
-                                onClick={() => router.push(`/recipes?cuisine=${cuisine.name}`)}
-                            >
-                                <div className="text-4xl mb-2">{cuisine.icon}</div>
-                                <p className="font-semibold text-sm" style={{ color: colors.text }}>{cuisine.name}</p>
-                                <p className="text-xs mt-0.5" style={{ color: colors.textMuted }}>Explore →</p>
-                            </motion.button>
-                        ))}
+                        {featuredCuisines.map((cuisine, i) => {
+                            const Icon = cuisine.icon
+                            return (
+                                <motion.button
+                                    key={cuisine.name}
+                                    initial={{ opacity: 0, scale: 0.93 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: i * 0.07 }}
+                                    whileHover={{ y: -4 }}
+                                    className="relative overflow-hidden rounded-2xl p-5 text-center group"
+                                    style={{ background: cuisine.tint, border: `1px solid ${colors.border}` }}
+                                    onClick={() => router.push(`/recipes?cuisine=${cuisine.name.toLowerCase()}`)}
+                                >
+                                    <Icon className="w-8 h-8 mx-auto mb-2" style={{ color: cuisine.iconColor }} />
+                                    <p className="font-semibold text-sm" style={{ color: colors.text }}>{cuisine.name}</p>
+                                    <p className="text-xs mt-0.5" style={{ color: colors.textMuted }}>Explore →</p>
+                                </motion.button>
+                            )
+                        })}
                     </div>
                 </div>
 
@@ -390,8 +425,7 @@ export default function Dashboard() {
                     )}
                 </div>
 
-                {/* Weekly Challenge Banner */}
-                {/* Weekly Challenge Banner */}
+                {/* Weekly Challenge Banner - All Icons + Avocado Button */}
                 <motion.div
                     initial={{ opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -421,43 +455,44 @@ export default function Dashboard() {
                                     e.stopPropagation()
                                     router.push('/recipes')
                                 }}
-                                className="px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-all group-hover:shadow-lg"
+                                className="px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-all group-hover:shadow-lg flex items-center gap-2"
                                 style={{ background: colors.accent, color: '#fff', boxShadow: `0 5px 16px ${colors.accent}28` }}
                             >
-                                Explore Recipes 🥑
+                                <Image
+                                    src={icon}
+                                    alt="Avocado"
+                                    width={20}
+                                    height={20}
+                                    className="object-contain"
+                                />
+                                Explore Recipes
                             </button>
                         </div>
                         <div className="flex gap-3 flex-shrink-0">
                             {[
-                                { e: '🍝', bg: '#FFF3E0', name: 'Italian' },
-                                { e: '🍜', bg: '#E8F5E9', name: 'Asian' },
-                                { e: '🌮', bg: '#FBE9E7', name: 'Mexican' },
-                            ].map(({ e, bg, name }, i) => (
+                                { Icon: Pizza, bg: '#FFF3E0', color: '#C17A3A', name: 'Italian', cuisine: 'italian' },
+                                { Icon: Fish, bg: '#E8F5E9', color: '#5A8A3C', name: 'Asian', cuisine: 'asian' },
+                                { Icon: Beef, bg: '#FBE9E7', color: '#E05A5A', name: 'Mexican', cuisine: 'mexican' },
+                                { Icon: Salad, bg: '#E3F2FD', color: '#3A7C6E', name: 'Mediterranean', cuisine: 'mediterranean' },
+                            ].map(({ Icon, bg, color, name, cuisine }, i) => (
                                 <motion.div
                                     key={i}
                                     animate={{ y: [0, -6, 0] }}
                                     transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.4, ease: 'easeInOut' }}
-                                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl cursor-pointer hover:scale-110 transition-transform"
+                                    className="w-14 h-14 rounded-2xl flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
                                     style={{ background: bg, border: `1px solid ${colors.border}` }}
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        router.push(`/recipes?cuisine=${name.toLowerCase()}`)
+                                        router.push(`/recipes?cuisine=${cuisine}`)
                                     }}
                                     title={`Explore ${name} recipes`}
                                 >
-                                    {e}
+                                    <Icon className="w-7 h-7" style={{ color: color }} />
                                 </motion.div>
                             ))}
                         </div>
                     </div>
                 </motion.div>
-
-                {/* Footer */}
-                <div className="mt-10 text-center">
-                    <p className="text-xs" style={{ color: colors.textMuted }}>
-                        🥑 Made with love for food enthusiasts · {new Date().getFullYear()} MealMind
-                    </p>
-                </div>
             </div>
         </div>
     )
