@@ -28,8 +28,8 @@ const features = [
     },
     {
         emoji: '🥗',
-        title: 'Track Nutrition',
-        desc: 'See calories, macros, and nutrients for every meal. Eat with confidence.',
+        title: 'Track Calories',
+        desc: 'Track your daily calorie intake with easy-to-read charts. Stay on top of your nutrition goals.',
         tint: '#FBE9E7',
     },
 ]
@@ -37,7 +37,7 @@ const features = [
 const stats = [
     { value: '365K+', label: 'Recipes' },
     { value: '50K+',  label: 'Happy Cooks' },
-    { value: '4.9★',  label: 'Rating' },
+    { value: '4.8★',  label: 'Rating' },
     { value: 'Free',  label: 'Forever' },
 ]
 
