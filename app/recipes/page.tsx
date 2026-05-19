@@ -288,13 +288,6 @@ export default function RecipesPage() {
                         )}
                     </motion.div>
                 )}
-
-                {/* Footer */}
-                <div className="mt-12 pt-6 text-center border-t" style={{ borderColor: colors.border }}>
-                    <p className="text-xs" style={{ color: colors.textMuted }}>
-                        🥑 Made with love for food enthusiasts • {new Date().getFullYear()} MealMind
-                    </p>
-                </div>
             </div>
         </div>
     )
