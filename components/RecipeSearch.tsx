@@ -98,7 +98,7 @@ export default function RecipeSearch({ onSaveRecipe }: RecipeSearchProps) {
     const fetchFullRecipeDetails = async (recipeId: number): Promise<FullRecipeDetails | null> => {
         try {
             const response = await fetch(
-                `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY}`
+                `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY}&includeNutrition=true`
             )
             const data = await response.json()
             return data
