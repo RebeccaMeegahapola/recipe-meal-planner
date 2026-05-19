@@ -193,6 +193,41 @@ export default function RecipeCard({ recipe, onDelete, showDelete = false }: Rec
                                     </ol>
                                 </div>
                             )}
+
+                            {/* Add this section after servings and before ingredients */}
+                            {recipe.nutrition && (
+                                <div>
+                                    <h3 className="font-semibold mb-3 flex items-center gap-2" style={{ color: colors.text }}>
+                                        <span className="text-lg">📊</span> Nutrition Facts
+                                    </h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                        <div className="text-center p-3 rounded-lg" style={{ background: colors.bg }}>
+                                            <div className="text-xl font-bold" style={{ color: colors.accent }}>
+                                                {Math.round(recipe.nutrition.calories || 0)}
+                                            </div>
+                                            <div className="text-xs" style={{ color: colors.textMuted }}>Calories</div>
+                                        </div>
+                                        <div className="text-center p-3 rounded-lg" style={{ background: colors.bg }}>
+                                            <div className="text-xl font-bold" style={{ color: colors.accent }}>
+                                                {Math.round(recipe.nutrition.protein || 0)}g
+                                            </div>
+                                            <div className="text-xs" style={{ color: colors.textMuted }}>Protein</div>
+                                        </div>
+                                        <div className="text-center p-3 rounded-lg" style={{ background: colors.bg }}>
+                                            <div className="text-xl font-bold" style={{ color: colors.accent }}>
+                                                {Math.round(recipe.nutrition.carbs || 0)}g
+                                            </div>
+                                            <div className="text-xs" style={{ color: colors.textMuted }}>Carbs</div>
+                                        </div>
+                                        <div className="text-center p-3 rounded-lg" style={{ background: colors.bg }}>
+                                            <div className="text-xl font-bold" style={{ color: colors.accent }}>
+                                                {Math.round(recipe.nutrition.fat || 0)}g
+                                            </div>
+                                            <div className="text-xs" style={{ color: colors.textMuted }}>Fat</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
