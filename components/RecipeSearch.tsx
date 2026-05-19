@@ -205,7 +205,7 @@ export default function RecipeSearch({ onSaveRecipe }: RecipeSearchProps) {
                         <SearchResultCard
                             key={recipe.id}
                             recipe={recipe}
-                            onViewDetails={handleCardClick}
+                            onSaveRecipe={onSaveRecipe}
                         />
                     ))}
                 </div>
@@ -217,116 +217,6 @@ export default function RecipeSearch({ onSaveRecipe }: RecipeSearchProps) {
                     <div className="rounded-2xl p-6 sm:p-8 text-center" style={{ background: colors.bgSecondary, border: `1px solid ${colors.border}` }}>
                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 mb-3" style={{ borderColor: colors.accent }}></div>
                         <p className="text-sm" style={{ color: colors.textMuted }}>Loading recipe details...</p>
-                    </div>
-                </div>
-            )}
-
-            {/* Full Recipe Details Modal - Responsive */}
-            {selectedRecipe && !loadingDetails && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4" onClick={() => setSelectedRecipe(null)}>
-                    <div
-                        className="rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-                        style={{ background: colors.bgSecondary, border: `1px solid ${colors.border}` }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div
-                            className="sticky top-0 p-3 sm:p-4 border-b flex justify-between items-center"
-                            style={{ background: colors.bgSecondary, borderBottomColor: colors.border }}
-                        >
-                            <h2 className="text-base sm:text-xl font-semibold pr-3 sm:pr-4 line-clamp-2" style={{ color: colors.text, fontFamily: theme.fontHeading }}>
-                                {selectedRecipe.title}
-                            </h2>
-                            <button
-                                onClick={() => setSelectedRecipe(null)}
-                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all hover:opacity-70 flex-shrink-0"
-                                style={{ background: colors.bgHover }}
-                            >
-                                <X className="w-4 h-4" style={{ color: colors.text }} />
-                            </button>
-                        </div>
-
-                        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5">
-                            <img
-                                src={selectedRecipe.image}
-                                alt={selectedRecipe.title}
-                                className="w-full h-48 sm:h-64 object-cover rounded-xl"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=400&fit=crop'
-                                }}
-                            />
-
-                            <div className="flex flex-wrap gap-2 sm:gap-4 text-sm">
-                                {selectedRecipe.readyInMinutes && (
-                                    <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full" style={{ background: colors.bgHover }}>
-                                        <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: colors.accent }} />
-                                        <span className="text-xs sm:text-sm" style={{ color: colors.textMuted }}>{selectedRecipe.readyInMinutes} min</span>
-                                    </div>
-                                )}
-                                {selectedRecipe.servings && (
-                                    <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full" style={{ background: colors.bgHover }}>
-                                        <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: colors.accent }} />
-                                        <span className="text-xs sm:text-sm" style={{ color: colors.textMuted }}>{selectedRecipe.servings} servings</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Ingredients */}
-                            <div>
-                                <h3 className="font-semibold mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base" style={{ color: colors.text }}>
-                                    <span className="text-base sm:text-lg">🛒</span> Ingredients
-                                    {selectedRecipe.extendedIngredients && (
-                                        <span className="text-[10px] sm:text-xs font-normal" style={{ color: colors.textMuted }}>({selectedRecipe.extendedIngredients.length} items)</span>
-                                    )}
-                                </h3>
-                                {selectedRecipe.extendedIngredients && selectedRecipe.extendedIngredients.length > 0 ? (
-                                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2">
-                                        {selectedRecipe.extendedIngredients.map((ing: Ingredient, i: number) => (
-                                            <li key={i} className="flex items-center gap-2 text-xs sm:text-sm px-2 py-1 rounded-lg" style={{ background: colors.bg, color: colors.textMuted }}>
-                                                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: colors.accent }} />
-                                                <span className="break-words">{ing.original}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <p className="text-xs sm:text-sm" style={{ color: colors.textMuted }}>No ingredients listed</p>
-                                )}
-                            </div>
-
-                            {/* Instructions */}
-                            <div>
-                                <h3 className="font-semibold mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base" style={{ color: colors.text }}>
-                                    <span className="text-base sm:text-lg">📝</span> Instructions
-                                    {selectedRecipe.analyzedInstructions?.[0]?.steps && (
-                                        <span className="text-[10px] sm:text-xs font-normal" style={{ color: colors.textMuted }}>({selectedRecipe.analyzedInstructions[0].steps.length} steps)</span>
-                                    )}
-                                </h3>
-                                {selectedRecipe.analyzedInstructions &&
-                                selectedRecipe.analyzedInstructions[0]?.steps &&
-                                selectedRecipe.analyzedInstructions[0].steps.length > 0 ? (
-                                    <ol className="space-y-2 sm:space-y-3">
-                                        {selectedRecipe.analyzedInstructions[0].steps.map((step: Step) => (
-                                            <li key={step.number} className="flex gap-2 sm:gap-3 text-xs sm:text-sm">
-                                                <span className="font-semibold w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs flex-shrink-0" style={{ background: colors.accent, color: '#fff' }}>
-                                                    {step.number}
-                                                </span>
-                                                <span className="leading-relaxed" style={{ color: colors.textMuted }}>{step.step}</span>
-                                            </li>
-                                        ))}
-                                    </ol>
-                                ) : (
-                                    <p className="text-xs sm:text-sm" style={{ color: colors.textMuted }}>No instructions available</p>
-                                )}
-                            </div>
-
-                            <button
-                                onClick={saveRecipe}
-                                className="w-full py-2.5 sm:py-3 rounded-xl font-semibold transition-all hover:opacity-90 flex items-center justify-center gap-2 text-sm sm:text-base"
-                                style={{ background: colors.accent, color: '#fff' }}
-                            >
-                                <BookmarkPlus className="w-4 h-4 sm:w-5 sm:h-5" />
-                                Save to My Recipes
-                            </button>
-                        </div>
                     </div>
                 </div>
             )}
