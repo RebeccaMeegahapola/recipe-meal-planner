@@ -35,7 +35,7 @@ export default function RecipesPage() {
     const [activeTab, setActiveTab] = useState<'search' | 'saved'>('search')
     const [loading, setLoading] = useState(true)
     const supabase = createClient()
-    const router = useRouter()  // ✅ Fixed: useRouter() hook
+    const router = useRouter()
 
     const loadSavedRecipes = async () => {
         try {
