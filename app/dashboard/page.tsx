@@ -391,12 +391,14 @@ export default function Dashboard() {
                 </div>
 
                 {/* Weekly Challenge Banner */}
+                {/* Weekly Challenge Banner */}
                 <motion.div
                     initial={{ opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35 }}
-                    className="relative overflow-hidden rounded-3xl p-8"
+                    className="relative overflow-hidden rounded-3xl p-8 cursor-pointer group"
                     style={{ background: `linear-gradient(135deg, #EDF5E1 0%, #F7FBF0 100%)`, border: `1px solid ${colors.border}` }}
+                    onClick={() => router.push('/recipes')}
                 >
                     <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-3xl" style={{ background: `linear-gradient(to bottom, ${colors.accent}, ${colors.accentLight})` }} />
 
@@ -415,24 +417,33 @@ export default function Dashboard() {
                                 Try a new cuisine and earn exclusive badges. Italian, Asian, Mexican, or Mediterranean?
                             </p>
                             <button
-                                className="px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-all"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    router.push('/recipes')
+                                }}
+                                className="px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-all group-hover:shadow-lg"
                                 style={{ background: colors.accent, color: '#fff', boxShadow: `0 5px 16px ${colors.accent}28` }}
                             >
-                                Accept Challenge 🥑
+                                Explore Recipes 🥑
                             </button>
                         </div>
                         <div className="flex gap-3 flex-shrink-0">
                             {[
-                                { e: '🍝', bg: '#FFF3E0' },
-                                { e: '🍜', bg: '#E8F5E9' },
-                                { e: '🌮', bg: '#FBE9E7' },
-                            ].map(({ e, bg }, i) => (
+                                { e: '🍝', bg: '#FFF3E0', name: 'Italian' },
+                                { e: '🍜', bg: '#E8F5E9', name: 'Asian' },
+                                { e: '🌮', bg: '#FBE9E7', name: 'Mexican' },
+                            ].map(({ e, bg, name }, i) => (
                                 <motion.div
                                     key={i}
                                     animate={{ y: [0, -6, 0] }}
                                     transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.4, ease: 'easeInOut' }}
-                                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
+                                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl cursor-pointer hover:scale-110 transition-transform"
                                     style={{ background: bg, border: `1px solid ${colors.border}` }}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        router.push(`/recipes?cuisine=${name.toLowerCase()}`)
+                                    }}
+                                    title={`Explore ${name} recipes`}
                                 >
                                     {e}
                                 </motion.div>
