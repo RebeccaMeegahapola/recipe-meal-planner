@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Plus, X, Save, Clock } from 'lucide-react'
+import {Plus, X, Save, Clock, Sunrise, UtensilsCrossed, Sandwich} from 'lucide-react'
 import { format, startOfWeek, addDays } from 'date-fns'
 import { theme } from '@/lib/theme'
 
@@ -41,10 +41,10 @@ interface MealPlannerProps {
 const days: string[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const mealTypes: string[] = ['breakfast', 'lunch', 'dinner']
 
-const mealIcons: { [key: string]: string } = {
-    breakfast: '🍳',
-    lunch: '🥗',
-    dinner: '🍝'
+const mealIcons: { [key: string]: React.ReactNode } = {
+    breakfast: <Sunrise className="w-3 h-3 mb-2" />,
+    lunch: <Sandwich className="w-3 h-3 mb-2" />,
+    dinner: <UtensilsCrossed className="w-3 h-3 mb-2" />
 }
 
 export default function MealPlanner({ savedRecipes, onSavePlan, initialPlan }: MealPlannerProps) {
