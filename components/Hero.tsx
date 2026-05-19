@@ -132,9 +132,8 @@ export default function Hero({ user }: HeroProps) {
                         {user ? (
                             <Link href="/dashboard">
                                 <button
-                                    className="group flex items-center gap-2.5 px-6 py-3 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                                    className="group flex items-center gap-2.5 px-6 py-3 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98] bg-[#5a8a3c]"
                                     style={{
-                                        background: C.accentDark,
                                         color: '#F4F8EE',
                                         boxShadow: `0 6px 24px ${C.accentDark}30`,
                                     }}
@@ -147,9 +146,8 @@ export default function Hero({ user }: HeroProps) {
                             <>
                                 <Link href="/login">
                                     <button
-                                        className="group flex items-center gap-2.5 px-6 py-3 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                                        className="group flex items-center gap-2.5 px-6 py-3 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98] bg-[#5a8a3c]"
                                         style={{
-                                            background: C.accentDark,
                                             color: '#F4F8EE',
                                             boxShadow: `0 6px 24px ${C.accentDark}30`,
                                         }}
@@ -181,7 +179,7 @@ export default function Hero({ user }: HeroProps) {
                         {[
                             { value: '365K+', label: 'Recipes' },
                             { value: '50K+', label: 'Active cooks' },
-                            { value: '4.9', label: 'Rating' },
+                            { value: '4.8', label: 'Rating' },
                         ].map(stat => (
                             <div key={stat.label}>
                                 <div className="text-lg font-bold" style={{ color: C.accentDark, fontFamily: theme.fontHeading }}>
@@ -343,9 +341,8 @@ export default function Hero({ user }: HeroProps) {
                         {user ? (
                             <Link href="/dashboard">
                                 <button
-                                    className="group flex items-center gap-2.5 px-7 py-3.5 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                                    className="group flex items-center gap-2.5 px-7 py-3.5 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98] bg-[#5a8a3c]"
                                     style={{
-                                        background: C.accentDark,
                                         color: '#F4F8EE',
                                         boxShadow: `0 6px 24px ${C.accentDark}30`,
                                     }}
@@ -358,9 +355,8 @@ export default function Hero({ user }: HeroProps) {
                             <>
                                 <Link href="/login">
                                     <button
-                                        className="group flex items-center gap-2.5 px-7 py-3.5 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                                        className="group flex items-center gap-2.5 px-7 py-3.5 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98] bg-[#5a8a3c]"
                                         style={{
-                                            background: C.accentDark,
                                             color: '#F4F8EE',
                                             boxShadow: `0 6px 24px ${C.accentDark}30`,
                                         }}
@@ -391,7 +387,7 @@ export default function Hero({ user }: HeroProps) {
                         {[
                             { value: '365K+', label: 'Recipes' },
                             { value: '50K+', label: 'Active cooks' },
-                            { value: '4.9', label: 'Rating' },
+                            { value: '4.8', label: 'Rating' },
                         ].map(stat => (
                             <div key={stat.label}>
                                 <div className="text-xl font-bold" style={{ color: C.accentDark, fontFamily: theme.fontHeading }}>
