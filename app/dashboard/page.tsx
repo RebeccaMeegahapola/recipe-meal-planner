@@ -12,11 +12,12 @@ import {
     ArrowRight,
     Sparkles,
     Bookmark,
-    Zap,
-    Leaf
+    Leaf,
+    Flame
 } from 'lucide-react'
 import { theme } from '@/lib/theme'
 import RecipeCard from '@/components/RecipeCard'
+import { format, startOfWeek } from "date-fns"
 
 interface Recipe {
     id: string
@@ -27,6 +28,19 @@ interface Recipe {
     servings?: number
     ingredients?: any[]
     instructions?: string[]
+    nutrition?: {
+        calories?: number
+        carbs?: number
+        protein?: number
+        fat?: number
+    }
+}
+
+// ✅ Define Meal type for type safety
+interface Meal {
+    id?: string
+    title?: string
+    [key: string]: any
 }
 
 const colors = theme.colors
@@ -36,9 +50,9 @@ export default function Dashboard() {
     const [recentRecipes, setRecentRecipes] = useState<Recipe[]>([])
     const [stats, setStats] = useState({
         totalRecipes: 0,
-        weeklyMeals: 0,
+        plannedMeals: 0,
         avgPrepTime: 0,
-        cookingStreak: 0
+        weeklyCalories: 0
     })
     const [loading, setLoading] = useState(true)
     const [greeting, setGreeting] = useState('')
@@ -62,27 +76,70 @@ export default function Dashboard() {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
+        // 1. Get recent recipes for display
         const { data: recipes } = await supabase
-            .from('recipes')           // From recipes table
-            .select('*')               // Get all columns
-            .eq('user_id', user.id)    // Only current user's recipes
-            .order('saved_at', { ascending: false })  // Newest first
-            .limit(8)                  // Only get 8 most recent
+            .from('recipes')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('saved_at', { ascending: false })
+            .limit(8)
 
+        // 2. Get current week's meal plan
+        const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 })
+        const weekStartStr = format(weekStart, 'yyyy-MM-dd')
+
+        const { data: mealPlanData } = await supabase
+            .from('meal_plans')
+            .select('meals')
+            .eq('user_id', user.id)
+            .eq('week_start', weekStartStr)
+            .maybeSingle()
+
+        // 3. Get ALL recipes with nutrition data (for calorie lookup)
+        const { data: allRecipes } = await supabase
+            .from('recipes')
+            .select('id, nutrition')
+            .eq('user_id', user.id)
+
+        // 4. Create a quick lookup map for nutrition
+        const nutritionMap = new Map()
+        allRecipes?.forEach(recipe => {
+            if (recipe.nutrition?.calories) {
+                nutritionMap.set(recipe.id, recipe.nutrition.calories)
+            }
+        })
+
+        // 5. Calculate calories from meal plan (SAME AS NUTRITION PAGE)
+        let weeklyCalories = 0
+        let plannedMeals = 0
+
+        if (mealPlanData?.meals) {
+            Object.values(mealPlanData.meals).forEach((meal: any) => {
+                if (meal && meal.id) {
+                    plannedMeals++
+                    const calories = nutritionMap.get(meal.id) || 0
+                    weeklyCalories += calories
+                }
+            })
+        }
+
+        console.log('🔥 Weekly Calories:', weeklyCalories)
+        console.log('📋 Planned Meals:', plannedMeals)
+
+        // 6. Update state
         if (recipes) {
-            // Remove duplicates by id
             const uniqueRecipes = Array.from(
-                new Map(recipes.map(recipe => [recipe.id, recipe])).values()
+                new Map(recipes.map((recipe: Recipe) => [recipe.id, recipe])).values()
             )
             setRecentRecipes(uniqueRecipes)
 
-            // Sum of all prep times
-            const totalPrepTime = uniqueRecipes.reduce((sum, r) => sum + (r.ready_in_minutes || 0), 0)
+            const totalPrepTime = uniqueRecipes.reduce((sum: number, r: Recipe) => sum + (r.ready_in_minutes || 0), 0)
+
             setStats({
                 totalRecipes: uniqueRecipes.length,
-                weeklyMeals: Math.min(uniqueRecipes.length * 2, 21),
+                plannedMeals: plannedMeals,
                 avgPrepTime: uniqueRecipes.length > 0 ? Math.round(totalPrepTime / uniqueRecipes.length) : 0,
-                cookingStreak: 12
+                weeklyCalories: Math.round(weeklyCalories)
             })
         }
         setLoading(false)
@@ -95,11 +152,11 @@ export default function Dashboard() {
             .eq('id', id)
 
         if (!error) {
-            setRecentRecipes(recentRecipes.filter(r => r.id !== id))
-            setStats(prev => ({
-                ...prev,
-                totalRecipes: prev.totalRecipes - 1
-            }))
+            const newRecipes = recentRecipes.filter((r: Recipe) => r.id !== id)
+            setRecentRecipes(newRecipes)
+
+            // Reload dashboard data to refresh stats
+            loadDashboardData()
         }
     }
 
@@ -117,13 +174,37 @@ export default function Dashboard() {
     ]
 
     const quickStats = [
-        { label: 'Recipes Saved',  value: stats.totalRecipes, icon: Bookmark, suffix: '', tint: '#E8F5E3' },
-        { label: 'Minutes Saved',  value: stats.avgPrepTime * stats.totalRecipes, icon: Clock, suffix: ' min', tint: '#FFF8E1' },
-        { label: 'Weekly Meals',   value: stats.weeklyMeals, icon: Calendar, suffix: ' meals', tint: '#E3F0FF' },
-        { label: 'Cooking Streak', value: stats.cookingStreak, icon: Zap, suffix: ' days', tint: '#FBE9E7' },
+        {
+            label: 'Recipes Saved',
+            value: stats.totalRecipes,
+            icon: Bookmark,
+            suffix: '',
+            tint: '#E8F5E3'
+        },
+        {
+            label: 'Minutes Saved',
+            value: Math.round(stats.avgPrepTime * stats.totalRecipes),
+            icon: Clock,
+            suffix: ' min',
+            tint: '#FFF8E1'
+        },
+        {
+            label: 'Planned Meals',
+            value: stats.plannedMeals,
+            icon: Calendar,
+            suffix: ' meals',
+            tint: '#E3F0FF'
+        },
+        {
+            label: 'Weekly Calories',
+            value: Math.round(stats.weeklyCalories),
+            icon: Flame,
+            suffix: ' cal',
+            tint: '#FBE9E7'
+        },
     ]
 
-    // Clean loading state - no rotation on heading
+    // Clean loading state
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center" style={{ background: colors.bg }}>
