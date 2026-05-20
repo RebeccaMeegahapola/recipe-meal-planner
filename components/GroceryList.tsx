@@ -35,7 +35,7 @@ interface GroceryListProps {
     onSave?: (items: GroceryItemsByCategory) => void
 }
 
-// ✅ Clean category icons mapping (no emojis in keys)
+// Category icons mapping
 const categoryIcons: { [key: string]: React.ReactNode } = {
     'Produce': <Apple className="w-4 h-4" />,
     'Meat & Seafood': <Beef className="w-4 h-4" />,
@@ -52,6 +52,7 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
     const [groceryItems, setGroceryItems] = useState<GroceryItemsByCategory>({})
     const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({})
     const [usedRecipes, setUsedRecipes] = useState<Recipe[]>([])
+    const [listVersion, setListVersion] = useState(0) // Track version to reset checked items
 
     useEffect(() => {
         if (mealPlan && recipes.length > 0) {
@@ -59,7 +60,14 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
         }
     }, [mealPlan, recipes])
 
-    // ✅ Updated categorizer - returns clean category names (no emojis)
+    // Reset checked items when grocery list changes
+    useEffect(() => {
+        // Clear checked items when grocery items change
+        setCheckedItems({})
+        // Also clear localStorage to be safe
+        localStorage.removeItem('grocery_checked')
+    }, [groceryItems]) // This runs whenever groceryItems changes
+
     const categorizeIngredient = (name: string): string => {
         const categories: { [key: string]: string[] } = {
             'Produce': ['tomato', 'onion', 'garlic', 'lettuce', 'spinach', 'carrot', 'potato', 'broccoli', 'cauliflower', 'zucchini', 'cucumber', 'pepper', 'mushroom', 'avocado', 'lemon', 'lime', 'herbs', 'basil', 'cilantro', 'parsley'],
@@ -103,7 +111,9 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
                     recipesUsedMap.set(recipe.id, recipe)
                 }
 
-                recipe.ingredients.forEach((ingredient: string | { name: string }) => {
+                const ingredientList = Array.isArray(recipe.ingredients) ? recipe.ingredients : []
+
+                ingredientList.forEach((ingredient: string | { name: string }) => {
                     let ingredientText: string
                     if (typeof ingredient === 'string') {
                         ingredientText = ingredient
@@ -144,36 +154,20 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
         })
 
         setGroceryItems(grouped)
-
-        try {
-            const savedChecked = localStorage.getItem('grocery_checked')
-            if (savedChecked) {
-                setCheckedItems(JSON.parse(savedChecked))
-            }
-        } catch (error) {
-            console.error('Failed to load checked items:', error)
-        }
     }
 
     const toggleItem = (itemId: string) => {
         setCheckedItems(prev => {
             const newChecked = { ...prev, [itemId]: !prev[itemId] }
-            try {
-                localStorage.setItem('grocery_checked', JSON.stringify(newChecked))
-            } catch (error) {
-                console.error('Failed to save checked items:', error)
-            }
+            // Only save to localStorage if you want to persist between page refreshes
+            // localStorage.setItem('grocery_checked', JSON.stringify(newChecked))
             return newChecked
         })
     }
 
     const resetChecked = () => {
         setCheckedItems({})
-        try {
-            localStorage.removeItem('grocery_checked')
-        } catch (error) {
-            console.error('Failed to remove checked items:', error)
-        }
+        localStorage.removeItem('grocery_checked')
     }
 
     const printList = () => {
@@ -183,7 +177,6 @@ export default function GroceryList({ mealPlan, recipes }: GroceryListProps) {
     const totalItems = Object.values(groceryItems).reduce((sum, items) => sum + items.length, 0)
     const checkedCount = Object.values(checkedItems).filter(v => v === true).length
 
-    // Get icon for category
     const getCategoryIcon = (category: string) => {
         return categoryIcons[category] || <Utensils className="w-4 h-4" />
     }
