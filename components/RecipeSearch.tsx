@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Search, Loader2, X, BookmarkPlus, Clock, Users, Star, Heart, Eye } from 'lucide-react'
+import { Search, Loader2, X, BookmarkPlus, Clock, Users, Star, Heart, Eye, AlertCircle, Utensils, ChefHat } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { theme } from '@/lib/theme'
 import SearchResultCard from "@/components/SearchResultCard"
@@ -77,18 +77,44 @@ export default function RecipeSearch({ onSaveRecipe }: RecipeSearchProps) {
     const [loading, setLoading] = useState<boolean>(false)
     const [selectedRecipe, setSelectedRecipe] = useState<FullRecipeDetails | null>(null)
     const [loadingDetails, setLoadingDetails] = useState<boolean>(false)
+    const [hasSearched, setHasSearched] = useState<boolean>(false)
+    const [searchError, setSearchError] = useState<string | null>(null)
 
     const searchRecipes = async (): Promise<void> => {
-        if (!searchTerm.trim()) return
+        if (!searchTerm.trim()) {
+            toast.error('Please enter a search term')
+            return
+        }
 
         setLoading(true)
+        setSearchError(null)
+        setHasSearched(true)
+
         try {
             const response = await fetch(
                 `https://api.spoonacular.com/recipes/complexSearch?query=${searchTerm}&apiKey=${process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY}&number=12&addRecipeInformation=true`
             )
+
+            if (!response.ok) {
+                if (response.status === 402) {
+                    throw new Error('API limit reached. Please try again later.')
+                }
+                throw new Error('Failed to fetch recipes')
+            }
+
             const data = await response.json()
-            setResults(data.results || [])
+
+            if (data.results && data.results.length === 0) {
+                setSearchError(`No recipes found for "${searchTerm}"`)
+                setResults([])
+            } else {
+                setResults(data.results || [])
+                setSearchError(null)
+            }
         } catch (error) {
+            console.error('Search error:', error)
+            setSearchError(error instanceof Error ? error.message : 'Failed to fetch recipes')
+            setResults([])
             toast.error('Failed to fetch recipes')
         } finally {
             setLoading(false)
@@ -100,6 +126,11 @@ export default function RecipeSearch({ onSaveRecipe }: RecipeSearchProps) {
             const response = await fetch(
                 `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY}&includeNutrition=true`
             )
+
+            if (!response.ok) {
+                throw new Error('Failed to load recipe details')
+            }
+
             const data = await response.json()
             return data
         } catch (error) {
@@ -143,6 +174,105 @@ export default function RecipeSearch({ onSaveRecipe }: RecipeSearchProps) {
         toast.success('Recipe saved successfully!')
     }
 
+    // ============================================
+    // EMPTY STATE COMPONENT
+    // ============================================
+    const EmptyState = () => (
+        <div className="flex flex-col items-center justify-center py-12 sm:py-20 px-4">
+            <div className="text-center max-w-md mx-auto">
+                <div className="relative">
+                    {/* Background blur circle */}
+                    <div className="absolute inset-0 blur-3xl opacity-20 rounded-full" style={{ background: colors.accent }}></div>
+
+                    {/* Icon container */}
+                    <div className="relative w-20 h-20 sm:w-28 sm:h-28 mx-auto mb-6 rounded-full flex items-center justify-center"
+                         style={{ background: `${colors.accent}10` }}>
+                        {!hasSearched ? (
+                            <ChefHat className="w-10 h-10 sm:w-14 sm:h-14" style={{ color: colors.accent }} />
+                        ) : searchError ? (
+                            <AlertCircle className="w-10 h-10 sm:w-14 sm:h-14" style={{ color: colors.warning || '#f59e0b' }} />
+                        ) : (
+                            <Utensils className="w-10 h-10 sm:w-14 sm:h-14" style={{ color: colors.accent }} />
+                        )}
+                    </div>
+                </div>
+
+                {!hasSearched ? (
+                    <>
+                        <h3 className="text-xl sm:text-2xl font-bold mb-3" style={{ color: colors.text }}>
+                            Find Your Next Meal
+                        </h3>
+                        <p className="text-sm sm:text-base mb-6" style={{ color: colors.textMuted }}>
+                            Search for thousands of recipes by ingredients, cuisine, or dish name.
+                        </p>
+                        <div className="flex flex-wrap justify-center gap-2">
+                            {['Pasta', 'Chicken', 'Salad', 'Soup', 'Curry', 'Pizza'].map((suggestion) => (
+                                <button
+                                    key={suggestion}
+                                    onClick={() => {
+                                        setSearchTerm(suggestion)
+                                        setTimeout(() => searchRecipes(), 100)
+                                    }}
+                                    className="px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all hover:scale-105"
+                                    style={{ background: `${colors.accent}10`, color: colors.accent }}
+                                >
+                                    {suggestion}
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                ) : searchError ? (
+                    <>
+                        <h3 className="text-xl sm:text-2xl font-bold mb-3" style={{ color: colors.text }}>
+                            No Recipes Found
+                        </h3>
+                        <p className="text-sm sm:text-base mb-4" style={{ color: colors.textMuted }}>
+                            {searchError}
+                        </p>
+                        <p className="text-xs sm:text-sm mb-6" style={{ color: colors.textMuted }}>
+                            Try different keywords or check your spelling
+                        </p>
+                        <button
+                            onClick={() => {
+                                setSearchTerm('')
+                                setHasSearched(false)
+                                setSearchError(null)
+                            }}
+                            className="px-5 py-2 rounded-xl font-semibold transition-all hover:opacity-90"
+                            style={{ background: colors.accent, color: '#fff' }}
+                        >
+                            Clear Search
+                        </button>
+                    </>
+                ) : results.length === 0 && !loading && hasSearched ? (
+                    <>
+                        <h3 className="text-xl sm:text-2xl font-bold mb-3" style={{ color: colors.text }}>
+                            No Results
+                        </h3>
+                        <p className="text-sm sm:text-base mb-6" style={{ color: colors.textMuted }}>
+                            Try searching for something else
+                        </p>
+                        <div className="flex justify-center gap-2">
+                            <button
+                                onClick={() => {
+                                    setSearchTerm('')
+                                    setHasSearched(false)
+                                }}
+                                className="px-5 py-2 rounded-xl font-semibold transition-all hover:opacity-90"
+                                style={{ background: colors.accent, color: '#fff' }}
+                            >
+                                New Search
+                            </button>
+                        </div>
+                    </>
+                ) : null}
+            </div>
+        </div>
+    )
+
+    // ============================================
+    // MAIN RENDER
+    // ============================================
     return (
         <div className="space-y-6">
             {/* Responsive Search Bar */}
@@ -157,7 +287,7 @@ export default function RecipeSearch({ onSaveRecipe }: RecipeSearchProps) {
                         className="w-full px-4 py-3 sm:px-5 sm:py-3 rounded-xl focus:outline-none focus:ring-2 transition-all text-sm sm:text-base"
                         style={{
                             background: colors.bgSecondary,
-                            border: `1px solid ${colors.border}`,
+                            border: `1px solid ${searchError ? colors.warning || '#f59e0b' : colors.border}`,
                             color: colors.text,
                             outline: 'none',
                         }}
@@ -166,11 +296,10 @@ export default function RecipeSearch({ onSaveRecipe }: RecipeSearchProps) {
                             e.currentTarget.style.boxShadow = `0 0 0 2px ${colors.accent}20`
                         }}
                         onBlur={(e) => {
-                            e.currentTarget.style.borderColor = colors.border
+                            e.currentTarget.style.borderColor = searchError ? colors.warning || '#f59e0b' : colors.border
                             e.currentTarget.style.boxShadow = 'none'
                         }}
                     />
-                    {/* Mobile search hint */}
                     <p className="text-[10px] sm:hidden mt-1 ml-1" style={{ color: colors.textMuted }}>
                         Press ↵ to search
                     </p>
@@ -186,8 +315,8 @@ export default function RecipeSearch({ onSaveRecipe }: RecipeSearchProps) {
                 </button>
             </div>
 
-            {/* Results count */}
-            {results.length > 0 && (
+            {/* Results count - Only show when there are results */}
+            {results.length > 0 && !searchError && (
                 <div className="flex justify-between items-center flex-wrap gap-2">
                     <p className="text-xs sm:text-sm" style={{ color: colors.textMuted }}>
                         Found <span className="font-semibold" style={{ color: colors.accent }}>{results.length}</span> recipes
@@ -198,8 +327,19 @@ export default function RecipeSearch({ onSaveRecipe }: RecipeSearchProps) {
                 </div>
             )}
 
-            {/* Search Results Grid - Responsive */}
-            {results.length > 0 && (
+            {/* Loading State */}
+            {loading && (
+                <div className="flex flex-col items-center justify-center py-12 sm:py-20">
+                    <div className="relative">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: colors.accent }}></div>
+                        <div className="absolute inset-0 rounded-full h-12 w-12 border-4 border-t-transparent animate-pulse opacity-20" style={{ borderColor: colors.accent }}></div>
+                    </div>
+                    <p className="mt-4 text-sm" style={{ color: colors.textMuted }}>Searching for recipes...</p>
+                </div>
+            )}
+
+            {/* Search Results Grid - Only show when there are results and not loading */}
+            {!loading && results.length > 0 && !searchError && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
                     {results.map((recipe) => (
                         <SearchResultCard
@@ -210,6 +350,9 @@ export default function RecipeSearch({ onSaveRecipe }: RecipeSearchProps) {
                     ))}
                 </div>
             )}
+
+            {/* Empty State - Show when no results and not loading */}
+            {!loading && (results.length === 0 || searchError) && <EmptyState />}
 
             {/* Loading Modal */}
             {loadingDetails && (
