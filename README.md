@@ -5,14 +5,13 @@
 1. [Project Overview](#-project-overview)
 2. [Features](#-features)
 3. [Tech Stack](#-tech-stack)
-4. [Project Structure](#-project-structure)
-5. [Database Schema](#-database-schema)
-6. [Authentication Flow](#-authentication-flow)
-7. [Avocado Theme](#-avocado-theme)
-8. [Component Documentation](#-component-documentation)
-9. [API Reference](#-api-reference)
-10. [Setup Instructions](#-setup-instructions)
-11. [Environment Variables](#-environment-variables)
+4. [Database Schema](#-database-schema)
+5. [Authentication Flow](#-authentication-flow)
+6. [Avocado Theme](#-avocado-theme)
+7. [Component Documentation](#-component-documentation)
+8. [API Reference](#-api-reference)
+9. [Setup Instructions](#-setup-instructions)
+10. [Environment Variables](#-environment-variables)
 
 ---
 
@@ -51,7 +50,11 @@
 - 💾 **Persistent Checkmarks** - Checked items saved in localStorage
 - 🔄 **Real-time Updates** - Data updates instantly across components
 - 📊 **Data Visualization** - Interactive charts for nutrition tracking
-- 🔐 **Email Rate Limit Fix** - Custom SMTP with Resend (3,000 free emails/month)
+- 🚫 **Duplicate Prevention** - Unique constraints prevent duplicate recipes
+- 🔒 **Row Level Security** - Complete data isolation between users
+- 🎯 **Auto Profile Creation** - Profiles auto-created on signup
+- 📅 **Weekly Meal Plans** - Organized by week start date
+- 🏷️ **Smart Categorization** - Grocery items auto-categorized
 
 ---
 
@@ -74,11 +77,7 @@
 | Supabase | Backend-as-a-Service (PostgreSQL + Auth) |
 | Row Level Security | Data isolation between users |
 | PostgreSQL | Relational database |
-
-### Email Service
-| Service | Purpose | Free Tier |
-|---------|---------|-----------|
-| Resend | SMTP email delivery | 3,000 emails/month |
+| RLS Policies | Fine-grained access control |
 
 ### APIs
 | API | Purpose | Limits |
@@ -99,6 +98,8 @@
 | `created_at` | TIMESTAMP | Account creation date |
 | `updated_at` | TIMESTAMP | Last profile update |
 
+**Auto-creation:** Trigger function creates profile automatically on user signup.
+
 ### Table: recipes
 | Column | Type | Description |
 |--------|------|-------------|
@@ -112,7 +113,10 @@
 | `ready_in_minutes` | INTEGER | Total cooking time |
 | `servings` | INTEGER | Number of portions |
 | `nutrition` | JSONB | Calories, protein, carbs, fat |
+| `source_url` | TEXT | Original recipe source |
 | `saved_at` | TIMESTAMP | When saved |
+
+**Unique Constraint:** `unique_user_recipe` prevents duplicate saves (user_id + api_id).
 
 ### Table: meal_plans
 | Column | Type | Description |
@@ -120,9 +124,10 @@
 | `id` | UUID | Unique plan ID |
 | `user_id` | UUID | Owner |
 | `week_start` | DATE | Monday of the week |
-| `meals` | JSONB | 21 meal slots |
+| `meals` | JSONB | 21 meal slots (7 days × breakfast/lunch/dinner) |
 | `created_at` | TIMESTAMP | Creation date |
 | `updated_at` | TIMESTAMP | Last update |
+
 
 ### Table: grocery_lists
 | Column | Type | Description |
@@ -144,13 +149,14 @@
 3. On success, user session is created
 4. `useSession()` hook provides user data to all components
 5. Middleware protects routes from unauthorized access
+6. Profile auto-created via database trigger
 
 ### Authentication Modes
 
 | Mode | Purpose | Features |
 |------|---------|----------|
 | **Login** | Existing users sign in | Email + Password, Forgot password link |
-| **Sign Up** | New users create account | Email + Password, Email confirmation required |
+| **Sign Up** | New users create account | Email + Password, Auto profile creation |
 | **Forgot Password** | Password recovery | Email only, Sends reset link |
 
 ---
@@ -162,11 +168,29 @@
 - `/grocery-list`
 - `/nutrition`
 
+---
+
+## 🥑 useSession Hook
+Custom React hook for authentication state management.
+
+Returns:
+- user - Current user object or null
+- loading - Loading state boolean
+- signOut - Function to sign out
+
 ### useSession Hook Usage
 ```typescript
 const { user, loading, signOut } = useSession();
 
 ```
+
+---
+## RLS Policies (Row Level Security)
+- All tables have RLS enabled with policies ensuring:
+- Users can only access their own data
+- Inserts automatically use auth.uid()
+- Updates/deletes restricted to record owners
+- No cross-user data leakage
 
 ---
 
@@ -197,6 +221,7 @@ Searches Spoonacular API for recipes.
 #### Features
 
 - Search by keyword
+- 12 results per search
 - Fetch recipes from Spoonacular API
 - Display results in a responsive grid
 - Click recipe to fetch full details
@@ -206,15 +231,15 @@ Searches Spoonacular API for recipes.
 
 ### 📅 MealPlanner Component
 
-Weekly meal planning interface.
+Weekly meal planning interface with 21 slots.
 
 #### Features
 
-- 7 days × 3 meals grid (21 slots)
-- Add meals to planner
-- Remove meals from planner
-- Save weekly plan to database
-- Recipe picker modal for selection
+- 7 days × breakfast/lunch/dinner grid
+- Add/remove meals from any slot
+- Recipe picker modal
+- Auto-save to database
+- Delete existing meal plans
 
 ---
 
@@ -224,25 +249,48 @@ Generates a shopping list from the meal plan.
 
 #### Features
 
-- Auto-extract ingredients from planned meals
-- Categorize items (Produce, Dairy, etc.)
-- Check-off tracking with localStorage
-- Print-friendly grocery list
+- Auto-extract ingredients from all planned meals
+- Smart categorization (Produce, Meat, Dairy, etc.)
+- Check-off tracking with localStorage persistence
+- Print-friendly layout
 
 ---
 
 ### 📊 NutritionTracker Component
 
-Displays nutrition data using charts.
+Displays nutrition data with interactive charts.
 
 #### Features
 
 - Daily calorie bar chart
-- Macro distribution pie chart
-- Weekly trends line chart
-- Updates dynamically based on meal plan
+- Total weekly calorie summary
+- Average daily calorie calculation
+- Color-coded visualizations
+- Updates automatically with meal plan changes
 
 ---
+
+### ‍💻 ProfilePage Component
+
+User profile management.
+
+#### Features:
+
+- View user email
+- Display name management
+- Account statistics (saved recipes, meal plans)
+- Sign out button
+
+---
+
+### 🚀 Setup Instructions
+
+Prerequisites
+
+- Node.js 18.x or higher
+- npm or yarn package manager
+- Supabase account (free tier)
+- Spoonacular API key (free tier - 150 points/day)
 
 
 
