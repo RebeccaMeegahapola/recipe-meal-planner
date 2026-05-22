@@ -19,6 +19,8 @@
 
 **MealMind** is a full-stack web application that helps users discover recipes, plan weekly meals, generate shopping lists, and track nutrition. Built with modern web technologies, it provides a seamless experience for home cooks to organize their culinary life.
 
+🌐 **Live Demo**: [https://recipe-meal-planner-web.vercel.app/](https://recipe-meal-planner-web.vercel.app/) 
+
 ### Problem Solved
 
 | Problem | Solution |
